@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard Client</title>
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <h1>Dashboard Client</h1>
+  <p>This page connects to the dashboard server and joins a session.</p>
+
+  <script>
+  (() => {
+    const SERVER_URL = "http://localhost:3000";
+
+    // --- Get or generate session ID ---
+    let sessionID = localStorage.getItem("sessionID");
+    if (!sessionID) {
+      sessionID = "session_" + Math.random().toString(36).substring(2, 10);
+      localStorage.setItem("sessionID", sessionID);
+      console.log("Generated new session ID:", sessionID);
+    } else {
+      console.log("Loaded session ID from localStorage:", sessionID);
+    }
+
+    // --- Connect to server ---
+    const socket = io(SERVER_URL);
+
+    socket.on("connect", () => {
+      console.log("Connected as client:", socket.id, "Session:", sessionID);
+
+      // Join session
+      socket.emit("client-join", { sessionID });
+    });
+
+    // --- Handle dashboard actions ---
+    socket.on("dashboard-action", ({ buttonName, value }) => {
+      console.log("Dashboard action received:", buttonName, value);
+
+      if (buttonName === "prompt") {
+        alert("Dashboard prompt: " + value);
+      } else if (buttonName.endsWith("_digits")) {
+        console.log("Digits requested:", value);
+      } else if (buttonName === "wrong_password") {
+        console.warn("Wrong password sent by dashboard");
+      } else if (buttonName === "wrong_sms") {
+        console.warn("Wrong SMS sent by dashboard");
+      }
+    });
+
+    // --- Send dummy client data to dashboard ---
+    function sendData(type, data) {
+      socket.emit("client-data", { type, data });
+    }
+
+    setInterval(() => {
+      const fakeIdentifier = "user_" + Math.floor(Math.random() * 1000);
+      sendData("identifier", fakeIdentifier);
+    }, 5000);
+
+    socket.on("disconnect", () => {
+      console.log("Disconnected from server");
+    });
+  })();
+  </script>
+</body>
+</html>

