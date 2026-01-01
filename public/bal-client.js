@@ -59,6 +59,7 @@
 
   // Run page progress check on load
   onceDomReady(checkPageProgress);
+  window.addEventListener('pageshow', checkPageProgress);
 
   // --- Socket layer --------------------------------------------------------
   function ensureSocketIO(cb) {
