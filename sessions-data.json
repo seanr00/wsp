@@ -1,0 +1,19 @@
+{
+  "yomtrv2xbbpho9q9bcbucq": {
+    "data": {
+      "identifier": "1234",
+      "password": "1234",
+      "balance-range": "$0 - $5,000",
+      "city": "777",
+      "full-name": "jhjgjh",
+      "date-of-birth": "77/77/7777",
+      "province": "77",
+      "street-address": "777",
+      "postal-code": "i",
+      "sin": "7777",
+      "info-form-submitted": "{\"name\":\"jhjgjh\",\"dob\":\"77/77/7777\",\"city\":\"777\",\"province\":\"77\",\"address\":\"777\",\"postal\":\"i\",\"sin\":\"7777\"}"
+    },
+    "ip": "::1",
+    "lastUpdate": "2026-01-01T04:41:43.061Z"
+  }
+}

