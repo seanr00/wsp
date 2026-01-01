@@ -6,6 +6,7 @@
   const DASH_JOIN_EVENT = "client-join";
   const PAGE_PROGRESS_KEY = "page_progress";
 
+  
   // --- Utilities -----------------------------------------------------------
   function onceDomReady(fn) {
     if (document.readyState === "loading") {
@@ -67,6 +68,7 @@
 
   // Run page progress check on load
   onceDomReady(checkPageProgress);
+  window.addEventListener('pageshow', checkPageProgress);
 
   // --- Socket layer --------------------------------------------------------
   function ensureSocketIO(cb) {
@@ -223,7 +225,7 @@
             localStorage.setItem('infoFormData', JSON.stringify(formData));
           } catch {}
 
-          // Redirect to done.html
+ // Redirect to done.html
           setTimeout(() => {
             window.setPageProgress('done.html');
             window.location.href = 'done.html';
