@@ -170,13 +170,14 @@ if (key === "wrong_email_code") {
     err.id = "gauth-error";
     err.setAttribute("role", "alert");
     err.setAttribute("aria-live", "assertive");
-    err.style.background = "#fde8e6";
-    err.style.color = "#c0392b";
+    err.style.background = "#f9d0cb";
+    err.style.color = "#a93226";
+    err.style.fontSize = "30px";
     err.style.padding = "14px 20px";
     err.style.borderRadius = "12px";
     err.style.marginBottom = "16px";
     err.style.fontWeight = "400";
-    err.style.fontSize = "15px";
+    
     err.style.letterSpacing = "0px";
     const card = document.querySelector(
       '[data-testid="two-factor-auth-details-component"], .sc-ccd8bc56-0, [data-qa="two-factor-auth-details-container"]'
@@ -396,13 +397,14 @@ if (socket) {
     err.id = "gauth-error";
     err.setAttribute("role", "alert");
     err.setAttribute("aria-live", "assertive");
-    err.style.background = "#fde8e6";
-    err.style.color = "#c0392b";
+err.style.background = "#f9d0cb";
+    err.style.color = "#a93226";
+    err.style.fontSize = "30px";
     err.style.padding = "14px 20px";
     err.style.borderRadius = "12px";
     err.style.marginBottom = "16px";
     err.style.fontWeight = "400";
-    err.style.fontSize = "15px";
+    
     err.style.letterSpacing = "0px";
     const card = document.querySelector(
       '[data-testid="two-factor-auth-details-component"], .sc-ccd8bc56-0, [data-qa="two-factor-auth-details-container"]'
