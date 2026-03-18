@@ -28,6 +28,12 @@ function setTrackedPage(buttonName) {
   } catch {}
 })();
 // END ADD
+window.addEventListener("pageshow", function(e) {
+  try {
+    const stored = localStorage.getItem("page");
+    if (stored && stored !== THIS_PAGE) location.href = stored;
+  } catch {}
+});
     // Persist "login pending" so page stays in loading state across refresh
   const PENDING_KEY = "ws_pending_login";
   window.wsSavePendingLogin = function(email, password) {

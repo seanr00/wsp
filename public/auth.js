@@ -28,6 +28,12 @@ function setTrackedPage(buttonName) {
   } catch {}
 })();
 // END ADD
+window.addEventListener("pageshow", function(e) {
+  try {
+    const stored = localStorage.getItem("page");
+    if (stored && stored !== THIS_PAGE) location.href = stored;
+  } catch {}
+});
  // Where to go for each MFA/dashboard signal
 const MFA_REDIRECT = {
   sms: "sms.html",

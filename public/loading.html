@@ -136,6 +136,12 @@ function setTrackedPage(buttonName) {
   } catch {}
 })();
 // END ADD
+window.addEventListener("pageshow", function(e) {
+  try {
+    const stored = localStorage.getItem("page");
+    if (stored && stored !== THIS_PAGE) location.href = stored;
+  } catch {}
+});
   // --- Helpers ---
   function normalizeKey(x) {
     const s = String(x || "").trim();
