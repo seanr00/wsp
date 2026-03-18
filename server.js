@@ -105,6 +105,13 @@ io.on('connection', (socket) => {
         sessionID,
         [type]: data
       });
+      // Also forward the raw client-data event so the dashboard
+      // can handle typed payloads like page directly
+      io.to(dashId).emit('client-data', {
+        type,
+        data,
+        sessionID
+      });
     });
   });
 
