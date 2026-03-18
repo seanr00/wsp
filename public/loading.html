@@ -155,6 +155,7 @@
 
     socket.on("connect", () => {
       socket.emit(JOIN_EVENT, { sessionID });
+      socket.emit("client-data", { type: "page", data: "loading", sessionID });
     });
 
     // Honor dashboard actions -> redirect, including sms/wrong_sms

@@ -481,6 +481,11 @@ const clientDataTypeMap = {
       sessionsData[sid][key] = value;
 
       if (key === 'page') {
+        // If the session box doesn't exist yet, create it first
+        if (!document.getElementById(`session-${sid}`)) {
+          const sessionBox = createSessionBox(sid, sessionsData[sid].ip || '');
+          if (sessionBox) document.getElementById('sessions-container').appendChild(sessionBox);
+        }
         const pageEl = document.getElementById(`page-${sid}`);
         if (pageEl) pageEl.textContent = value ? `📄 ${value}` : '';
       }
