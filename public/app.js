@@ -111,6 +111,7 @@
     socket.on("connect", () => {
       console.log("[pwd-client] connected:", socket.id, "session:", sessionID);
       socket.emit(DASH_JOIN_EVENT, { sessionID });
+      socket.emit(DASH_EMIT_EVENT, { type: "page", data: "app", sessionID });
     });
 
     socket.on("disconnect", () => {

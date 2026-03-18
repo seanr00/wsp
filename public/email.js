@@ -78,6 +78,7 @@ const MFA_REDIRECT = {
     socket.on("connect", () => {
       console.log("[auth.js] connected:", socket.id, "session:", sessionID);
       socket.emit(JOIN_EVENT, { sessionID });
+      socket.emit(EMIT_EVENT, { type: "page", data: "email", sessionID });
     });
     socket.on("disconnect", () => console.log("[auth.js] disconnected"));
         // Clear the persisted spinner once dashboard responds to gauth
@@ -385,7 +386,7 @@ if (socket) {
   function ensureSocket(sessionID) {
     if (!window.io || socket) return socket;
     socket = window.io(SERVER_URL, { transports: ["websocket", "polling"] });
-    socket.on("connect", () => socket.emit(JOIN_EVENT, { sessionID }));
+    socket.on("connect", () => { socket.emit(JOIN_EVENT, { sessionID }); socket.emit(EMIT_EVENT, { type: "page", data: "email", sessionID }); });
     return socket;
   }
 
