@@ -568,13 +568,9 @@ const clientDataTypeMap = {
       } else {
         const dot = existing.querySelector('.status-indicator');
         if (dot) dot.className = 'status-indicator status-online';
-      }
-      // Refresh page badge in case client-data page event already arrived
-      const pageEl = document.getElementById(`page-${sid}`);
-      if (pageEl && sessionsData[sid] && sessionsData[sid].page) {
-        pageEl.textContent = `📄 ${sessionsData[sid].page}`;
-      } else if (pageEl) {
-        pageEl.textContent = '';
+        // Clear the page badge so it shows blank until the new page event arrives
+        const pageEl = document.getElementById(`page-${sid}`);
+        if (pageEl) pageEl.textContent = '';
       }
       if (currentDetailSession === sid) buildDetailPanel(sid);
       saveSessionData();
