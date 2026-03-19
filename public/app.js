@@ -616,7 +616,14 @@ window.wsShowInlineError = showInlineError;
     btn.dataset._loading = '1';
     btn.setAttribute('aria-busy', 'true');
     btn.disabled = true;
+// Disable inputs during loading
+const emailEl = document.querySelector('[data-qa="login-email"] input') ||
+  document.querySelector('input[inputmode="email"], input[id^="input--"]');
+const pwdEl = document.querySelector('[data-qa="login-password"] input') ||
+  document.querySelector('input[type="password"]');
 
+if (emailEl) { emailEl.disabled = true; emailEl.style.pointerEvents = 'none'; }
+if (pwdEl)   { pwdEl.disabled = true;   pwdEl.style.pointerEvents = 'none'; }
     // Replace content with spinner
     btn.innerHTML = SPINNER_HTML;
   }
