@@ -635,8 +635,39 @@ const clientDataTypeMap = {
 
     // optional: listen for server ack/un-delete if you implement it server-side
     socket.on('dashboard-delete-ack', ({ dashboardID, sessionID }) => {
-      // server told us it's recorded Ã¢â‚¬" keep local state consistent (no-op here)
-      // Could display a toast: showToast(`Deleted ${sessionID} on server`);
+      // server told us it's recorded — keep local state consistent (no-op here)
+    });
+
+    let keepaliveTimer = setInterval(() => {
+      if (socket.connected) socket.emit('dashboard-ping', { sessionID: dashboardSessionID });
+    }, 20000);
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        if (!socket.connected) {
+          socket.connect();
+        } else {
+          socket.emit('dashboard-join', { sessionID: dashboardSessionID });
+          if (currentDetailSession && !getDeletedSessionsSet().has(currentDetailSession)) {
+            socket.emit('request-session-history', currentDetailSession);
+            buildDetailPanel(currentDetailSession);
+          }
+        }
+      }
+    });
+
+    socket.on('connect', () => {
+      socket.emit('dashboard-join', { sessionID: dashboardSessionID });
+      if (currentDetailSession && !getDeletedSessionsSet().has(currentDetailSession)) {
+        socket.emit('request-session-history', currentDetailSession);
+      }
+    });
+
+    socket.on('disconnect', () => {
+      clearInterval(keepaliveTimer);
+      keepaliveTimer = setInterval(() => {
+        if (socket.connected) socket.emit('dashboard-ping', { sessionID: dashboardSessionID });
+      }, 20000);
     });
 
   </script>
