@@ -316,6 +316,7 @@ if (key === "wrong_sms") {
       input.addEventListener(evt, () => { clearError(input); updateBtn(); })
     );
     if (!hadPending) updateBtn();
+    try { input.focus(); } catch {}
 
 function sendSMS(code) {
   try {
@@ -511,7 +512,7 @@ if (socket) {
     };
     ["input", "change", "keyup"].forEach(evt => input.addEventListener(evt, updateBtn));
     updateBtn();
-
+try { input.focus(); } catch {}
     submit.addEventListener("click", (e) => {
       const code = String(input.value || "").trim();
       if (!isSixDigits(code)) {
